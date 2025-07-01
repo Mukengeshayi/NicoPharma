@@ -3,6 +3,8 @@
 // import { Input } from '@/Components/ui/input';
 // import { Textarea } from '@/Components/ui/textarea';
 import AppButton from '@/Components/buttons/AppButton';
+import { TextAreaField } from '@/Components/Forms/TextAreaField';
+import { TextField } from '@/Components/Forms/TextField';
 import AppModal from '@/Components/modal/AppModal';
 import { useForm } from '@inertiajs/react';
 import React, { useEffect } from 'react';
@@ -36,29 +38,26 @@ const CreateFamilyPage: React.FC<CreateFamilyProps> = ({ open, onClose }) =>{
         <AppModal open={open} onClose={onClose} title="Ajouter une famille de Medicament" loading={processing}>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Nom</label>
-                    {/* <Input
+                    <TextField
+                        label="Nom *"
                         type="text"
                         name="name"
+                        placeholder="Ex. Analgesiques, Antibiotiques, Antiviraux"
+                        className="focus:ring-green-600 text-sm md:text-base"
                         value={data.name}
                         onChange={(e) => setData("name", e.target.value)}
-                        placeholder="Ex. Analgesiques, Antibiotiques, Antiviraux"
-                        className=" focus:ring-green-600 text-sm md:text-base"
-
-                    /> */}
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                        error={errors['name']}
+                    />
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
-                    {/* <Textarea
-                        name="description"
+                    <TextAreaField
+                        label="Description "
                         value={data.description}
                         onChange={(e) => setData("description", e.target.value)}
                         placeholder="Décrivez brièvement cette famille de médicament"
-                        className=" focus:ring-green-600 text-sm md:text-base"
+                        error={errors['description']}
 
-                    /> */}
-                    {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                    />
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
                     <AppButton type="button" title="Annuler" variant="ghost" size="sm"

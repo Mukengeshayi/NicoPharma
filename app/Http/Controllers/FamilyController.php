@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFamillyRequest;
 use App\Models\Family;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,9 +30,13 @@ class FamilyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreFamillyRequest $request)
     {
-        //
+        $family = Family::create($request->all());
+        return redirect()->route('families.index')->with([
+            'success' => true,
+            'message' => 'Familles Ajouté avec succes.' ,
+        ]);
     }
 
     /**

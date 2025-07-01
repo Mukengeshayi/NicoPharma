@@ -3,6 +3,7 @@ import CustomBreadcrumb from '@/Components/Utils/CustomBreadcrumb';
 import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Home, Plus } from 'lucide-react';
 import React, { useState } from 'react';
+import CreateFamilyPage from './CreateFamilyPage';
 // import CreateFamilyPage from './CreateFamilyPage';
 
 const FamilyPage = () => {
@@ -40,7 +41,7 @@ const FamilyPage = () => {
                     </div>
                 </div>
             </div>
-            {/* <CreateFamilyPage open={showModal} onClose={() => setShowModal(false)} /> */}
+            <CreateFamilyPage open={showModal} onClose={() => setShowModal(false)} />
         </Authenticated>
     )
 }
