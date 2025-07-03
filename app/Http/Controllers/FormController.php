@@ -12,10 +12,24 @@ class FormController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+         $query = Form::query();
+
+        // Recherche
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
+        // Tri
+        $sort = $request->sort ?? ['field' => 'id', 'direction' => 'asc'];
+        $query->orderBy($sort['field'], $sort['direction']);
+        // Pagination
+        $perPage = $request->perPage ?? 10;
+        $forms = $query->paginate($perPage);
+
         return Inertia::render('Form/FormPage',[
-            // 'forms' => $forms,
+            'forms' => $forms,
+            'filters' => $request->only(['search', 'sort', 'perPage']),
         ]);
     }
 

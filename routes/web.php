@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -26,6 +27,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('medicines/forms', FormController::class);
     Route::resource('/medicines/families',FamilyController::class);
+    Route::resource('/medicines', MedicineController::class);
+
 
 
 });

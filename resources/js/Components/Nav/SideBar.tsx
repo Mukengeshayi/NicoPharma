@@ -41,23 +41,23 @@ const navItems = [
       },
     ],
   },
-//   {
-//     label: 'Approvisionnement',
-//     href: '#',
-//     icon: Truck,
-//     children: [
-//       {
-//         label: 'Fournisseurs',
-//         href: '/approvisionnement/fournisseurs',
-//         icon: Users,
-//       },
-//       {
-//         label: 'Achats',
-//         href: '/approvisionnement/achats',
-//         icon: ClipboardList,
-//       },
-//     ],
-//   },
+  {
+    label: 'Approvisionnement',
+    href: '#',
+    icon: Truck,
+    children: [
+      {
+        label: 'Fournisseurs',
+        href: '/approvisionnement/fournisseurs',
+        icon: Users,
+      },
+      {
+        label: 'Achats',
+        href: '/approvisionnement/achats',
+        icon: ClipboardList,
+      },
+    ],
+  },
   {
     label: 'Gestion des Ventes',
     href: '#',

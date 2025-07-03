@@ -29,7 +29,7 @@ class StoreFamillyRequest extends FormRequest
     public function messages()
     {
         return [
-            'name.required' => 'Le nom de la famille est obligatoire.',
+            'name.required' => 'Le nom de la famille est obligatoire..',
             'name.string' => 'Le nom de la famille doit être une chaîne de caractères.',
             'name.max' => 'Le nom de la famille ne peut pas dépasser 255 caractères.',
             'name.unique' => 'Ce nom de famille existe déjà. Veuillez saisir un autre.',
