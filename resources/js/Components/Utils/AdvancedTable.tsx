@@ -732,9 +732,9 @@ const exportToExcel = (dataToExport: any[] = data) => {
 
         {/* Sélection multiple */}
         {selectable && selectedItems.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg flex items-center justify-between">
+          <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-blue-800">
+              <span className="text-sm font-medium text-green-800">
                 {selectedItems.length} élément(s) sélectionné(s)
               </span>
             </div>

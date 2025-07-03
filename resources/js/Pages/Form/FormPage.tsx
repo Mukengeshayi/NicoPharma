@@ -2,18 +2,19 @@
 import CustomBreadcrumb from "@/Components/Utils/CustomBreadcrumb";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
-import { Home, Plus, Save, Trash } from "lucide-react";
+import { Eye, FileUp, Home, Plus, Save, Trash, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import AppButton from "@/Components/buttons/AppButton";
 import CreateFormPage from "./CreateFormPage";
 import { PageProps, PaginatedData, Sort } from '@/types';
 import AdvancedTable from "@/Components/Utils/AdvancedTable";
+import UpdateFormPage from "./UpdateFormPage";
+import DeleteConfirmationModal from "@/Components/modal/DeleteConfirmationModal";
 
 interface Form {
   id: number;
-  nom: string;
+  name: string;
   created_at: string;
-  updated_at: string;
 }
 interface FormProps extends PageProps {
   forms: PaginatedData<Form>;
@@ -23,17 +24,37 @@ interface FormProps extends PageProps {
     perPage?: number;
   };
 }
-export default function FormPage({auth,forms, filters }: FormProps) {
-        console.log(forms);
-        console.log(filters);
-        const [showModal, setShowModal] = useState(false);
-        const [preloading, setPreloading] = useState(false);
+export default function FormPage({forms, filters }: FormProps) {
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedForm, setSelectedForm] = useState<Form | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<Form | null>(null);
+    const [preloading, setPreloading] = useState(false);
+
+    const handleDeleteClick = (item: Form) => {
+        setItemToDelete(item);
+        setShowDeleteModal(true);
+    };
+    const handleConfirmDelete = () => {
+        if (!itemToDelete) return;
+
+        setDeleteLoading(true);
+        router.delete(route('forms.destroy', itemToDelete.id), {
+        onFinish: () => {
+            setDeleteLoading(false);
+            setShowDeleteModal(false);
+            setItemToDelete(null);
+        },
+        });
+    };
 
         const handleOpen = () => {
             setPreloading(true);
             setTimeout(() => {
             setPreloading(false);
-            setShowModal(true);
+            setShowCreateModal(true);
             }, 1000);
         };
         const breadcrumbItems = [
@@ -81,7 +102,7 @@ export default function FormPage({auth,forms, filters }: FormProps) {
                     <div className="">
                         <AppButton
                             icon={<Plus  className="w-4 h-4"/>}
-                            title="Ajouter"
+                            title="Nouveau"
                             variant="primary"
                             size="md"
                             className = " bg-green-600 hover:bg-green-700 text-white"
@@ -103,20 +124,44 @@ export default function FormPage({auth,forms, filters }: FormProps) {
                         routeName="forms.index"
                         filters={filters}
                         idField="id"
-                        title="Liste des formes"
+                        title="Formes des medicaments"
                         perPageOptions={[10, 25, 50, 100]}
-                        // createRoute="forms.create"
-                        // createLabel="Ajouter une forme"
                         onRowClick={(item) => router.visit(route('forms.show', item.id))}
+                        showEdit={true}
+                        showDelete={true}
+                        actions={{
+                            view: (item) => router.visit(route('forms.show', item.id)),
+                            edit: (item) => {
+                                setSelectedForm(item);
+                                setShowUpdateModal(true);
+                            },
+                            delete: (item) => handleDeleteClick(item),
 
-
+                        }}
+                        emptyState={
+                            <div className="text-center py-2">
+                                <div className="text-gray-500 mb-4">Aucune forme trouvée</div>
+                            </div>
+                        }
                     />
-
                 </div>
 
             </div>
-
-            <CreateFormPage open={showModal} onClose={() => setShowModal(false)} />
+            <CreateFormPage open={showCreateModal} onClose={() => setShowCreateModal(false)} />
+            {selectedForm && (
+                <UpdateFormPage
+                    open={showUpdateModal}
+                    onClose={() => setShowUpdateModal(false)}
+                    form={selectedForm}
+                />
+            )}
+            <DeleteConfirmationModal
+                open={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={handleConfirmDelete}
+                loading={deleteLoading}
+                message="Êtes-vous sûr de vouloir supprimer cette forme ? Cette action est irréversible."
+            />
         </Authenticated>
     );
 

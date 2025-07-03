@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFormRequest;
 use App\Models\Form;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class FormController extends Controller
@@ -58,7 +59,9 @@ class FormController extends Controller
      */
     public function show(Form $form)
     {
-        //
+        return inertia('Form/ShowFormPage', [
+        'form' => $form,
+    ]);
     }
 
     /**
@@ -74,7 +77,14 @@ class FormController extends Controller
      */
     public function update(Request $request, Form $form)
     {
-        //
+        $validated = $request->validate([
+            'name' => ['required','string','max:255',Rule::unique('forms')->ignore($form->id),
+            ],
+        ]);
+        $form->update($validated);
+
+        return redirect()->route('forms.index')->with('success', 'La forme a été mise à jour avec succès.');
+
     }
 
     /**
@@ -82,6 +92,9 @@ class FormController extends Controller
      */
     public function destroy(Form $form)
     {
-        //
+        $form->delete();
+
+        return redirect()->route('forms.index')
+            ->with('success', 'La forme a été suprimée avec succès.');
     }
 }
