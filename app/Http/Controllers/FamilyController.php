@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFamillyRequest;
 use App\Models\Family;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class FamilyController extends Controller
@@ -12,10 +13,23 @@ class FamilyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = Family::query();
+
+        // Recherche
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
+        // Tri
+        $sort = $request->sort ?? ['field' => 'id', 'direction' => 'asc'];
+        $query->orderBy($sort['field'], $sort['direction']);
+        // Pagination
+        $perPage = $request->perPage ?? 10;
+        $families = $query->paginate($perPage);
          return Inertia::render('Family/FamilyPage',[
-            // 'forms' => $forms,
+            'families' => $families,
+            'filters' => $request->only(['search', 'sort', 'perPage'])
         ]);
     }
 
@@ -44,7 +58,10 @@ class FamilyController extends Controller
      */
     public function show(Family $family)
     {
-        //
+
+        return inertia('Family/ShowFamilyPage', [
+            'family' => $family,
+        ]);
     }
 
     /**
@@ -60,7 +77,19 @@ class FamilyController extends Controller
      */
     public function update(Request $request, Family $family)
     {
-        //
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('forms')->ignore($family->id),
+            ],
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $family->update($validated);
+
+        return redirect()->back()->with('success', 'La forme a été mise à jour avec succès.');
     }
 
     /**
@@ -68,6 +97,7 @@ class FamilyController extends Controller
      */
     public function destroy(Family $family)
     {
-        //
+        $family->delete();
+        return redirect()->route('families.index')->with('success', 'La famille a été suprimée avec succès.');
     }
 }

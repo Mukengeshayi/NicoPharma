@@ -60,7 +60,7 @@ const CreateFamilyPage: React.FC<CreateFamilyProps> = ({ open, onClose }) =>{
                     />
                 </div>
                 <div className="flex justify-end space-x-2 pt-4">
-                    <AppButton type="button" title="Annuler" variant="ghost" size="sm"
+                    <AppButton type="button" title="Annuler" variant="secondary" size="md"
                         onClick={() => {
                             reset();
                             onClose();
@@ -68,7 +68,7 @@ const CreateFamilyPage: React.FC<CreateFamilyProps> = ({ open, onClose }) =>{
                     />
                     <AppButton
                         title="Ajouter"
-                        type="submit" variant="primary" size="sm" disabled={processing}
+                        type="submit" variant="primary" size="md" disabled={processing}
                         className = " bg-green-600 hover:bg-green-700 text-white"
                     />
                 </div>

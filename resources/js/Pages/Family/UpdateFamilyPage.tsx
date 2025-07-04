@@ -4,25 +4,27 @@ import { Plus, Save } from "lucide-react";
 import AppModal from "@/Components/modal/AppModal";
 import AppButton from "@/Components/buttons/AppButton";
 
-interface Form {
+interface Family {
   id: number;
   name: string;
+  description: string | null;
   created_at: string;
 }
 
-interface UpdateFormPageProps {
+interface UpdateFamilyPageProps {
   open: boolean;
   onClose: () => void;
-  form: Form;
+  family: Family;
 }
 
-const UpdateFormPage: React.FC<UpdateFormPageProps> = ({ open, onClose, form }) => {
+const UpdateFamilyPage: React.FC<UpdateFamilyPageProps> = ({ open, onClose, family }) => {
   const { data, setData, put, processing, errors } = useForm({
-    name: form.name,
+    name: family.name,
+    description: family.description || "",
   });
   const handleSubmit = (e: React.FormEvent) => {
           e.preventDefault();
-          put(route("forms.update",form.id), {
+          put(route("families.update",family.id), {
           onSuccess: () => {
               onClose();
           },
@@ -42,6 +44,18 @@ const UpdateFormPage: React.FC<UpdateFormPageProps> = ({ open, onClose, form }) 
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
           />
           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        </div>
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+            </label>
+            <textarea
+                value={data.description}
+                onChange={(e) => setData('description', e.target.value)}
+                rows={3}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-300"
+            />
+            {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
         </div>
         <div className="flex justify-end gap-3 pt-4">
             <AppButton
@@ -67,4 +81,4 @@ const UpdateFormPage: React.FC<UpdateFormPageProps> = ({ open, onClose, form }) 
   );
 };
 
-export default UpdateFormPage;
+export default UpdateFamilyPage;

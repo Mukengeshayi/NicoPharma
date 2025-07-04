@@ -62,13 +62,7 @@ export default function FormPage({forms, filters }: FormProps) {
             { label: "Formes" },
         ];
         const columns = [
-            {
-                key: 'id',
-                label: 'ID',
-                sortable: true,
-                width: 80,
-                className: 'text-center',
-            },
+
             {
                 key: 'name',
                 label: 'Nom',
@@ -78,7 +72,7 @@ export default function FormPage({forms, filters }: FormProps) {
             },
             {
                 key: 'created_at',
-                label: 'Date création',
+                label: 'Date de création',
                 sortable: true,
                 render: (item: Form) => new Date(item.created_at).toLocaleDateString('fr-FR'),
                 headerClassName: 'whitespace-nowrap',
@@ -130,7 +124,6 @@ export default function FormPage({forms, filters }: FormProps) {
                         showEdit={true}
                         showDelete={true}
                         actions={{
-                            view: (item) => router.visit(route('forms.show', item.id)),
                             edit: (item) => {
                                 setSelectedForm(item);
                                 setShowUpdateModal(true);

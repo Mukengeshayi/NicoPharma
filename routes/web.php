@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('forms', FormController::class)->except(['create','edit']);
-    Route::resource('families',FamilyController::class);
+    Route::resource('families',FamilyController::class)->except(['create','edit']);;
     Route::resource('/medicines', MedicineController::class);
 
 

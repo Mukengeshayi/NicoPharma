@@ -15,7 +15,7 @@ class FormController extends Controller
      */
     public function index(Request $request)
     {
-         $query = Form::query();
+        $query = Form::query();
 
         // Recherche
         if ($request->has('search')) {
@@ -58,10 +58,10 @@ class FormController extends Controller
      * Display the specified resource.
      */
     public function show(Form $form)
-    {
-        return inertia('Form/ShowFormPage', [
-        'form' => $form,
-    ]);
+        {
+            return inertia('Form/ShowFormPage', [
+            'form' => $form,
+        ]);
     }
 
     /**
@@ -93,8 +93,6 @@ class FormController extends Controller
     public function destroy(Form $form)
     {
         $form->delete();
-
-        return redirect()->route('forms.index')
-            ->with('success', 'La forme a été suprimée avec succès.');
+        return redirect()->route('forms.index')->with('success', 'La forme a été suprimée avec succès.');
     }
 }
