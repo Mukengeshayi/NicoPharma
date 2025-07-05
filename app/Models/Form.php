@@ -10,5 +10,12 @@ class Form extends Model
 {
     use HasFactory, SoftDeletes;
     protected $fillable = ['name'];
+
+    public function medicines()
+    {
+        return $this->belongsToMany(Medicine::class, 'medicine_forms')
+                    ->withPivot('packaging_unit_id', 'content_unit_id', 'content_quantity', 'price')
+                    ->withTimestamps();
+    }
 }
 

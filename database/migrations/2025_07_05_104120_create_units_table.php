@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('medicines', function (Blueprint $table) {
+        Schema::create('units', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
             $table->string('name');
-            $table->foreignId('family_id')->nullable()->constrained('families');
-            $table->text('composition')->nullable();
-            $table->text('indications')->nullable();
+            $table->string('abbreviation')->nullable(); 
+            $table->enum('type', ['primary', 'measure', 'container']);
+            $table->text('description')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -28,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('medicines', function (Blueprint $table) {
-            $table->dropSoftDeletes();
-        });
+        Schema::dropIfExists('units');
     }
 };

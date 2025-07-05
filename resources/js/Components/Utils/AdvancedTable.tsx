@@ -547,7 +547,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
             <>
               <button
                 onClick={() => handlePageChange(1)}
-                className={`px-3 py-1 rounded border ${1 === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-100'}`}
+                className={`px-3 py-1 rounded border ${1 === currentPage ? 'bg-green-600 text-white border-green-600' : 'hover:bg-gray-100'}`}
               >
                 1
               </button>
@@ -559,7 +559,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 rounded border ${page === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-100'}`}
+              className={`px-3 py-1 rounded border ${page === currentPage ? 'bg-green-600 text-white border-green-600' : 'hover:bg-gray-100'}`}
             >
               {page}
             </button>
@@ -570,7 +570,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
               {endPage < totalPages - 1 && <span className="px-2">...</span>}
               <button
                 onClick={() => handlePageChange(totalPages)}
-                className={`px-3 py-1 rounded border ${totalPages === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-100'}`}
+                className={`px-3 py-1 rounded border ${totalPages === currentPage ? 'bg-green-600 text-white border-green-600' : 'hover:bg-gray-100'}`}
               >
                 {totalPages}
               </button>
@@ -617,7 +617,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
             {createRoute && (
               <button
                 onClick={handleCreate}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 <Plus className="mr-2 h-4 w-4" /> {createLabel}
               </button>
@@ -632,7 +632,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                 <input
                   type="text"
                   placeholder="Rechercher..."
-                  className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />

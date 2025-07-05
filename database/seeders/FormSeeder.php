@@ -53,7 +53,5 @@ class FormSeeder extends Seeder
                 'updated_at' => now()
             ]);
         }
-
-        $this->command->info('Seeder de formes de médicaments (noms seulement) exécuté avec succès !');
     }
 }

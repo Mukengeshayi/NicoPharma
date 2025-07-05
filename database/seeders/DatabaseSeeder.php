@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             FormSeeder::class,
             FamilySeeder::class,
+            UnitSeeder::class,
+            MedicineSeeder::class,
         ]);
     }
 }

@@ -16,7 +16,8 @@ class FamilySeeder extends Seeder
         $families = [
             ['name' => 'Analgésiques', 'description' => 'Médicaments contre la douleur'],
             ['name' => 'Antibiotiques', 'description' => 'Médicaments contre les infections bactériennes'],
-            ['name' => 'Anti-inflammatoires', 'description' => 'Médicaments réduisant l\'inflammation'],
+            ['name' => 'Antalgiques/Anti-inflammatoires', 'description' => 'Médicaments réduisant l\'inflammation'],
+            ['name' => 'Antipaludiques', 'description' => 'Médicaments contre les paludismes'],
             ['name' => 'Antihistaminiques', 'description' => 'Médicaments contre les allergies'],
             ['name' => 'Antidépresseurs', 'description' => 'Médicaments pour traiter la dépression'],
             ['name' => 'Antidiabétiques', 'description' => 'Médicaments pour le diabète'],
