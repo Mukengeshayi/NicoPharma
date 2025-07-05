@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('name');
             $table->foreignId('family_id')->nullable()->constrained('families');
-            $table->text('composition')->nullable();
             $table->text('indications')->nullable();
             $table->timestamps();
             $table->softDeletes();

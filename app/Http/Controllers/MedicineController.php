@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Family;
 use App\Models\Medicine;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 
 class MedicineController extends Controller
@@ -14,20 +16,33 @@ class MedicineController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->input('perPage', 10);
-        $sort = $request->input('sort', ['field' => 'name', 'direction' => 'asc']);
+         $query = Medicine::with('family')
+            ->select(['medicines.*', 'families.name as family_name'])
+            ->leftJoin('families', 'medicines.family_id', '=', 'families.id');
 
-        $families = Family::when($request->input('search'), function($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
-            })
-            ->when($sort, function($query, $sort) {
-                if (isset($sort['field']) && isset($sort['direction'])) {
-                    $query->orderBy($sort['field'], $sort['direction']);
-                }
-            })
-            ->paginate($perPage);
+        // Recherche
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('medicines.code', 'like', "%{$search}%")
+                  ->orWhere('medicines.name', 'like', "%{$search}%")
+                  ->orWhere('families.name', 'like', "%{$search}%");
+            });
+        }
+
+        // Tri
+        $sort = $request->sort ?? ['field' => 'medicines.code', 'direction' => 'asc'];
+        $query->orderBy($sort['field'], $sort['direction']);
+
+        // Pagination
+        $perPage = $request->perPage ?? 25;
+        $medicines = $query->paginate($perPage);
+
         return Inertia::render('Medicines/MedicinePage',[
-            'families' => $families,
+            'medicines' => $medicines,
+            'filters' => $request->only(['search', 'sort', 'perPage']),
+            'families' => Family::orderBy('name')->get(['id', 'name']),
+
         ]);
     }
 
@@ -44,10 +59,24 @@ class MedicineController extends Controller
      */
     public function store(Request $request)
     {
-        $medecine = Medicine::create([
-                'name' =>$request->name,
-                'family_id' => $request->family_id,
-            ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'family_id' => 'nullable|exists:families,id',
+            'indications' => 'nullable|string',
+        ], [
+            'family_id.exists' => 'La famille sélectionnée est invalide',
+        ]);
+
+        try {
+            $code = $this->generateMedicineCode($request->name);
+
+            Medicine::create(array_merge($validated, [
+                'code' => $code
+            ]));
+            return redirect()->route('medicines.index')->with('success', 'Médicament créé avec succès');
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['database' => 'Erreur lors de la création: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -55,7 +84,10 @@ class MedicineController extends Controller
      */
     public function show(Medicine $medicine)
     {
-        //
+        return Inertia::render('Medicines/ShowMedicinePage', [
+            'medicine' => $medicine->load('family'),
+            'audits' => $medicine->audits()->with('user')->latest()->get(),
+        ]);
     }
 
     /**
@@ -71,7 +103,23 @@ class MedicineController extends Controller
      */
     public function update(Request $request, Medicine $medicine)
     {
-        //
+        $validated = $request->validate([
+            'code' => 'required|string|max:20|unique:medicines,code,' . $medicine->id,
+            'name' => 'required|string|max:100',
+            'family_id' => 'nullable|exists:families,id',
+            'indications' => 'nullable|string',
+        ]);
+
+        try {
+            $medicine->update($validated);
+            return redirect()
+                ->route('medicines.index')
+                ->with('success', 'Médicament mis à jour avec succès');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->withErrors(['database' => 'Erreur lors de la mise à jour']);
+        }
     }
 
     /**
@@ -79,6 +127,50 @@ class MedicineController extends Controller
      */
     public function destroy(Medicine $medicine)
     {
-        //
+        Validator::make(['id' => $medicine->id], [
+            'id' => 'required|exists:medicines,id',
+        ])->validate();
+
+        try {
+            $medicine->delete();
+            return redirect()->route('medicines.index')->with('success', 'Médicament supprimé avec succès');
+        } catch (\Exception $e) {
+            return back()->withErrors(['database' => 'Erreur lors de la suppression']);
+        }
+    }
+    public function massDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:medicines,id',
+        ]);
+
+        DB::transaction(function() use ($request) {
+            Medicine::whereIn('id', $request->ids)->delete();
+        });
+
+        return redirect()->back()->with('success', 'Médicaments supprimés avec succès');
+    }
+    protected function generateMedicineCode(string $name): string
+    {
+        // 1. Nettoyer le nom (supprimer accents, caractères spéciaux)
+        $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', iconv('UTF-8', 'ASCII//TRANSLIT', $name));
+
+        // 2. Prendre les 3 premières lettres en majuscules
+        $prefix = strtoupper(substr($cleanName, 0, 3));
+
+        // 3. Ajouter un numéro séquentiel unique
+        $lastMedicine = Medicine::where('code', 'like', $prefix.'%')
+                            ->orderBy('code', 'desc')
+                            ->first();
+
+        $number = 1;
+        if ($lastMedicine) {
+            $lastNumber = (int) substr($lastMedicine->code, 3);
+            $number = $lastNumber + 1;
+        }
+
+        // 4. Format final (ex: PAR001, PAR002, etc.)
+        return $prefix . str_pad($number, 3, '0', STR_PAD_LEFT);
     }
 }

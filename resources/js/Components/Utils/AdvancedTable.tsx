@@ -8,7 +8,6 @@ import {
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
 
 interface Column<T> {
   key: string;
@@ -812,7 +811,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                           type="checkbox"
                           checked={selectAll}
                           onChange={handleSelectAll}
-                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          className="h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
                         />
                       </div>
                     </th>
@@ -868,7 +867,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                         (selectable ? 1 : 0) +
                         ((actions.view || actions.edit || actions.delete || actions.custom) ? 1 : 0)
                       }
-                      className="px-6 py-12 text-center"
+                      className="px-6 py-1 text-center"
                     >
                       {emptyState || (
                         <div className="text-gray-500">
@@ -895,7 +894,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                             type="checkbox"
                             checked={selectedItems.includes(item[idField])}
                             onChange={() => handleSelectItem(item[idField])}
-                            className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                            className="h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
                           />
                         </td>
                       )}
@@ -906,6 +905,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                           className={`px-6 py-4 whitespace-nowrap ${column.cellClassName || ''} ${
                             index === 0 && selectable ? 'sticky left-[57px] z-10 bg-white hover:bg-gray-50' : ''
                           }`}
+                          style={{ height: '48px' }}
                         >
                           {column.render ? column.render(item) : (
                             <span className="truncate max-w-xs inline-block">

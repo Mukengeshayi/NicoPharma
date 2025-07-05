@@ -26,8 +26,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('forms', FormController::class)->except(['create','edit']);
-    Route::resource('families',FamilyController::class)->except(['create','edit']);;
-    Route::resource('/medicines', MedicineController::class);
+    Route::resource('families',FamilyController::class)->except(['create','edit']);
+
+    Route::resource('/medicines', MedicineController::class)->except(['create','edit']);
+    Route::post('medicines/mass-destroy', [MedicineController::class, 'massDestroy'])->name('medicines.mass-destroy');
 
 
 

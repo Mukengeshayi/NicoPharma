@@ -14,7 +14,6 @@ class Medicine extends Model
         'code',
         'name',
         'family_id',
-        'composition',
         'indications',
     ];
     public function family()

@@ -9,6 +9,7 @@ interface TextFieldProps {
     name?: string;
     autoComplete?: string;
     error?: string;
+    
 }
 
 export function TextField({ label, value,placeholder, onChange, type = 'text', error, step }: TextFieldProps) {

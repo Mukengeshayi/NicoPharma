@@ -20,14 +20,12 @@ class MedicineSeeder extends Seeder
                 'code' => 'ARTESUNATE-60',
                 'name' => 'Artésunate 60mg',
                 'family_id' => Family::where('name', 'Antipaludiques')->first()->id,
-                'composition' => 'Artésunate 60mg',
                 'indications' => 'Traitement du paludisme simple chez l\'enfant'
             ],
             [
                 'code' => 'COARTEM-20',
                 'name' => 'Coartem 20/120',
                 'family_id' => Family::where('name', 'Antipaludiques')->first()->id,
-                'composition' => 'Artéméther 20mg/Luméfantrine 120mg',
                 'indications' => 'Traitement du paludisme non compliqué'
             ],
 
@@ -36,7 +34,6 @@ class MedicineSeeder extends Seeder
                 'code' => 'AMOX-250',
                 'name' => 'Amoxicilline 250mg',
                 'family_id' => Family::where('name', 'Antibiotiques')->first()->id,
-                'composition' => 'Amoxicilline trihydrate 250mg',
                 'indications' => 'Infections bactériennes courantes'
             ],
 
@@ -45,7 +42,6 @@ class MedicineSeeder extends Seeder
                 'code' => 'PARA-500',
                 'name' => 'Paracétamol 500mg',
                 'family_id' => Family::where('name', 'Antalgiques/Anti-inflammatoires')->first()->id,
-                'composition' => 'Paracétamol 500mg',
                 'indications' => 'Douleur et fièvre'
             ],
 
@@ -54,7 +50,6 @@ class MedicineSeeder extends Seeder
                 'code' => 'NIFED-20',
                 'name' => 'Nifédipine 20mg',
                 'family_id' => Family::where('name', 'Antihypertenseurs')->first()->id,
-                'composition' => 'Nifédipine 20mg',
                 'indications' => 'Hypertension artérielle'
             ]
         ];
