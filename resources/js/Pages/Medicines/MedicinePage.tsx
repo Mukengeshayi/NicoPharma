@@ -4,8 +4,6 @@ import Authenticated from '@/Layouts/AuthenticatedLayout';
 import { Box, Home, Plus } from 'lucide-react';
 import React, { useState } from 'react';
 import CreateMedicinePage from './CreateMedicinePage';
-// import CreateMedicinePage from './CreateMedicinePage';
-import { ColumnDef } from '@tanstack/react-table';
 import { PageProps, PaginatedData, Sort } from '@/types';
 import AdvancedTable from '@/Components/Utils/AdvancedTable';
 import { router } from '@inertiajs/react';
@@ -41,6 +39,7 @@ export default function MedicinePage({ medicines, families, filters }: MedecineP
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<Medicine | null>(null);
+
 
     const handleDeleteClick = (item: Medicine) => {
         setItemToDelete(item);
@@ -160,7 +159,7 @@ export default function MedicinePage({ medicines, families, filters }: MedecineP
                             custom: [
                                 {
                                     icon: <Box className="h-4 w-4" />,
-                                    tooltip: 'Affecter les formes et lots',
+                                    tooltip: 'Gerer le conditionnement',
                                     onClick: (item) => router.visit(route('medicines.edit', item.id)),
                                     color: 'green',
                                 },

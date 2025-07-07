@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import * as XLSX from 'xlsx';
 
 interface Column<T> {
   key: string;
@@ -44,6 +43,7 @@ interface TableProps<T> {
   routeName: string;
   searchable?: boolean;
   exportable?: boolean;
+  exportEndpoint?: string; // Nouvelle prop pour l'export backend
   selectable?: boolean;
   showDelete?: boolean;
   showEdit?: boolean;
@@ -89,6 +89,7 @@ export default function AdvancedTable<T>({
   routeName,
   searchable = true,
   exportable = true,
+  exportEndpoint, // Nouvelle prop
   selectable = true,
   showDelete = false,
   showEdit = false,
@@ -131,6 +132,7 @@ export default function AdvancedTable<T>({
   const [showFilters, setShowFilters] = useState(false);
   const [localFilters, setLocalFilters] = useState<Record<string, any>>({});
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Réinitialiser la sélection lorsque les données changent
   useEffect(() => {
@@ -249,11 +251,7 @@ export default function AdvancedTable<T>({
           }
           break;
         case 'export':
-          if (bulkActions?.export) {
-            await bulkActions.export(selectedItems);
-          } else {
-            exportToExcel(data.filter((item: any) => selectedItems.includes(item[idField])));
-          }
+          await handleExport(selectedItems);
           break;
         default:
           break;
@@ -264,7 +262,51 @@ export default function AdvancedTable<T>({
     } finally {
       setIsBulkProcessing(false);
     }
-  }, [selectedItems, bulkActions, data, idField]);
+  }, [selectedItems, bulkActions]);
+
+  // Nouvelle fonction pour gérer l'export côté backend
+  const handleExport = useCallback(async (ids?: any[]) => {
+    if (!exportEndpoint) {
+      toast.error('Endpoint d\'export non configuré');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const params = {
+        ...filters,
+        ids: ids?.length ? ids : undefined,
+        format: 'xlsx'
+      };
+
+      // Créer une URL avec les paramètres de requête
+      const queryString = new URLSearchParams();
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            value.forEach(v => queryString.append(`${key}[]`, v));
+          } else {
+            queryString.append(key, value);
+          }
+        }
+      });
+
+      // Créer un lien temporaire et déclencher le téléchargement
+      const link = document.createElement('a');
+      link.href = `${exportEndpoint}?${queryString.toString()}`;
+      link.download = 'export.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast.success('Export en cours...');
+    } catch (error) {
+      toast.error('Erreur lors de l\'export');
+      console.error('Export error:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [exportEndpoint, filters]);
 
   const toggleColumnVisibility = useCallback((key: string) => {
     setColumns(prevColumns =>
@@ -274,82 +316,6 @@ export default function AdvancedTable<T>({
     );
   }, []);
 
-//   const exportToExcel = useCallback((dataToExport: any[] = data) => {
-//     try {
-//       // Filtrer les colonnes visibles
-//       const visibleColumns = columns.filter(col => !col.hidden);
-
-//       // Préparer les données pour l'export
-//       const exportData = dataToExport.map(item => {
-//         const row: Record<string, any> = {};
-//         visibleColumns.forEach(col => {
-//           // Extraire le texte des cellules rendues
-//           if (col.render) {
-//             const rendered = col.render(item);
-//             if (typeof rendered === 'string') {
-//               row[col.label] = rendered;
-//             } else if (React.isValidElement(rendered)) {
-//               // Essayer d'extraire le texte des éléments React
-//               row[col.label] = rendered.props.children || '';
-//             } else {
-//               row[col.label] = '';
-//             }
-//           } else {
-//             row[col.label] = typeof item[col.key] === 'object' ?
-//                             JSON.stringify(item[col.key]) :
-//                             item[col.key] ?? '';
-//           }
-//         });
-//         return row;
-//       });
-
-//       // Créer une feuille de calcul
-//       const worksheet = XLSX.utils.json_to_sheet(exportData);
-//       const workbook = XLSX.utils.book_new();
-//       XLSX.utils.book_append_sheet(workbook, worksheet, "Données");
-
-//       // Formatage automatique des colonnes
-//       const wscols = visibleColumns.map(col => ({
-//         width: typeof col.width === 'number' ? col.width / 7 : 20 // Convertir px en largeur Excel
-//       }));
-//       worksheet['!cols'] = wscols;
-
-//       // Ajouter des en-têtes stylisés
-//       const headerStyle = {
-//         font: { bold: true, color: { rgb: "FFFFFF" } },
-//         fill: { fgColor: { rgb: "4472C4" } }, // Bleu Excel
-//         alignment: { horizontal: "center" }
-//       };
-
-//       // Générer le fichier Excel avec la date dans le nom
-//       const date = new Date().toISOString().slice(0, 10);
-//       const fileName = `Export_${title.replace(/[^a-z0-9]/gi, '_')}_${date}.xlsx`;
-
-//       // Utiliser file-saver pour un meilleur contrôle du téléchargement
-//       const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-//       const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-//       saveAs(blob, fileName);
-
-//       toast.success(`Export réussi - ${fileName}`);
-//     } catch (error) {
-//       console.error('Erreur lors de l\'export Excel:', error);
-//       toast.error('Erreur lors de l\'export');
-//     }
-//   }, [columns, data, title]);
-
-const exportToExcel = (dataToExport: any[] = data) => {
-  try {
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-    // Alternative à file-saver :
-    XLSX.writeFile(workbook, "export.xlsx");
-
-  } catch (error) {
-    console.error('Export error:', error);
-  }
-}
   const handleAction = useCallback((actionType: string, item: T) => {
     const action = actions[actionType as keyof typeof actions];
 
@@ -440,7 +406,10 @@ const exportToExcel = (dataToExport: any[] = data) => {
     if (rowActionsDropdown && actionButtons.length > 0) {
       return (
         <div className="relative">
-          <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <button
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
             <MoreVertical className="h-4 w-4 text-gray-500" />
           </button>
           <div className="absolute right-0 z-20 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
@@ -546,7 +515,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
             <>
               <button
                 onClick={() => handlePageChange(1)}
-                className={`px-3 py-1 rounded border ${1 === currentPage ? 'bg-green-600 text-white border-green-600' : 'hover:bg-gray-100'}`}
+                className={`px-3 py-1 rounded border ${1 === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-100'}`}
               >
                 1
               </button>
@@ -558,7 +527,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`px-3 py-1 rounded border ${page === currentPage ? 'bg-green-600 text-white border-green-600' : 'hover:bg-gray-100'}`}
+              className={`px-3 py-1 rounded border ${page === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-100'}`}
             >
               {page}
             </button>
@@ -569,7 +538,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
               {endPage < totalPages - 1 && <span className="px-2">...</span>}
               <button
                 onClick={() => handlePageChange(totalPages)}
-                className={`px-3 py-1 rounded border ${totalPages === currentPage ? 'bg-green-600 text-white border-green-600' : 'hover:bg-gray-100'}`}
+                className={`px-3 py-1 rounded border ${totalPages === currentPage ? 'bg-blue-600 text-white border-blue-600' : 'hover:bg-gray-100'}`}
               >
                 {totalPages}
               </button>
@@ -616,7 +585,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
             {createRoute && (
               <button
                 onClick={handleCreate}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 <Plus className="mr-2 h-4 w-4" /> {createLabel}
               </button>
@@ -631,7 +600,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                 <input
                   type="text"
                   placeholder="Rechercher..."
-                  className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-green-500"
+                  className="pl-10 pr-4 py-2 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -657,12 +626,18 @@ const exportToExcel = (dataToExport: any[] = data) => {
                 <Sliders className="h-4 w-4" /> Colonnes
               </button>
 
-              {exportable && (
+              {exportable && exportEndpoint && (
                 <button
-                  onClick={() => exportToExcel()}
-                  className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors"
+                  onClick={() => handleExport()}
+                  disabled={isExporting}
+                  className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2 transition-colors disabled:opacity-50"
                 >
-                  <Download className="h-4 w-4" /> Exporter
+                  {isExporting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  Exporter
                 </button>
               )}
             </div>
@@ -731,37 +706,41 @@ const exportToExcel = (dataToExport: any[] = data) => {
 
         {/* Sélection multiple */}
         {selectable && selectedItems.length > 0 && (
-          <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center justify-between">
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-green-800">
+              <span className="text-sm font-medium text-blue-800">
                 {selectedItems.length} élément(s) sélectionné(s)
               </span>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleBulkAction('export')}
-                disabled={isBulkProcessing}
-                className="px-3 py-1.5 bg-green-600 text-white text-sm rounded flex items-center gap-2 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isBulkProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
-                Exporter
-              </button>
-              <button
-                onClick={() => handleBulkAction('delete')}
-                disabled={isBulkProcessing}
-                className="px-3 py-1.5 bg-red-600 text-white text-sm rounded flex items-center gap-2 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isBulkProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-                Supprimer
-              </button>
+            <div className="flex flex-wrap gap-2">
+              {exportable && exportEndpoint && (
+                <button
+                  onClick={() => handleBulkAction('export')}
+                  disabled={isBulkProcessing}
+                  className="px-3 py-1.5 bg-green-600 text-white text-sm rounded flex items-center gap-2 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  Exporter
+                </button>
+              )}
+              {bulkActions?.delete && (
+                <button
+                  onClick={() => handleBulkAction('delete')}
+                  disabled={isBulkProcessing}
+                  className="px-3 py-1.5 bg-red-600 text-white text-sm rounded flex items-center gap-2 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isBulkProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  Supprimer
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -805,13 +784,13 @@ const exportToExcel = (dataToExport: any[] = data) => {
               <thead className={`bg-gray-50 ${stickyHeader ? 'sticky top-0 z-10' : ''}`}>
                 <tr>
                   {selectable && (
-                    <th className="sticky left-0 z-20 bg-gray-50 px-6 py-3 text-left">
+                    <th className="sticky left-0 z-20 bg-gray-50 px-4 py-3 text-left">
                       <div className="flex items-center">
                         <input
                           type="checkbox"
                           checked={selectAll}
                           onChange={handleSelectAll}
-                          className="h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                          className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                         />
                       </div>
                     </th>
@@ -820,10 +799,10 @@ const exportToExcel = (dataToExport: any[] = data) => {
                   {visibleColumns.map((column, index) => (
                     <th
                       key={column.key}
-                      className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                      className={`px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
                         column.sortable !== false ? 'cursor-pointer hover:bg-gray-100' : ''
                       } ${column.headerClassName || ''} ${
-                        index === 0 && selectable ? 'sticky left-[57px] z-20 bg-gray-50' : ''
+                        index === 0 && selectable ? 'sticky left-[49px] z-20 bg-gray-50' : ''
                       }`}
                       onClick={() => column.sortable !== false ? handleSort(column.key) : null}
                       style={{ width: column.width }}
@@ -836,7 +815,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                   ))}
 
                   {(actions.view || actions.edit || actions.delete || actions.custom) && (
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky right-0 z-20 bg-gray-50">
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky right-0 z-20 bg-gray-50">
                       Actions
                     </th>
                   )}
@@ -867,11 +846,15 @@ const exportToExcel = (dataToExport: any[] = data) => {
                         (selectable ? 1 : 0) +
                         ((actions.view || actions.edit || actions.delete || actions.custom) ? 1 : 0)
                       }
-                      className="px-6 py-1 text-center"
+                      className="px-6 py-12 text-center"
                     >
                       {emptyState || (
-                        <div className="text-gray-500">
-                          Aucune donnée disponible
+                        <div className="text-gray-500 py-8">
+                          <div className="flex flex-col items-center justify-center">
+                            <FileUp className="h-12 w-12 text-gray-400 mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900 mb-1">Aucune donnée disponible</h3>
+                            <p className="text-sm text-gray-500">Aucun résultat trouvé pour votre recherche</p>
+                          </div>
                         </div>
                       )}
                     </td>
@@ -887,14 +870,14 @@ const exportToExcel = (dataToExport: any[] = data) => {
                     >
                       {selectable && (
                         <td
-                          className="sticky left-0 z-10 bg-white px-6 py-4 whitespace-nowrap hover:bg-gray-50"
+                          className="sticky left-0 z-10 bg-white px-4 py-4 whitespace-nowrap hover:bg-gray-50"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <input
                             type="checkbox"
                             checked={selectedItems.includes(item[idField])}
                             onChange={() => handleSelectItem(item[idField])}
-                            className="h-4 w-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                            className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                           />
                         </td>
                       )}
@@ -902,10 +885,9 @@ const exportToExcel = (dataToExport: any[] = data) => {
                       {visibleColumns.map((column, index) => (
                         <td
                           key={column.key}
-                          className={`px-6 py-4 whitespace-nowrap ${column.cellClassName || ''} ${
-                            index === 0 && selectable ? 'sticky left-[57px] z-10 bg-white hover:bg-gray-50' : ''
+                          className={`px-4 py-4 whitespace-nowrap ${column.cellClassName || ''} ${
+                            index === 0 && selectable ? 'sticky left-[49px] z-10 bg-white hover:bg-gray-50' : ''
                           }`}
-                          style={{ height: '48px' }}
                         >
                           {column.render ? column.render(item) : (
                             <span className="truncate max-w-xs inline-block">
@@ -918,7 +900,7 @@ const exportToExcel = (dataToExport: any[] = data) => {
                       ))}
 
                       {(actions.view || actions.edit || actions.delete || actions.custom) && (
-                        <td className="px-6 py-4 whitespace-nowrap sticky right-0 z-10 bg-white hover:bg-gray-50 group">
+                        <td className="px-4 py-4 whitespace-nowrap sticky right-0 z-10 bg-white hover:bg-gray-50 group">
                           {renderActions(item)}
                         </td>
                       )}

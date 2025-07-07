@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Link, usePage } from '@inertiajs/react'
-import {X,LayoutDashboard,Pill,Layers,Boxes,PackageCheck,ShoppingCart,Truck,User,Users,HandCoins,Settings,ChevronDown,ChevronRight,ClipboardList,Warehouse,FileBarChart,ShieldCheck,UserCog,ListOrdered,
+import {
+  X, LayoutDashboard, Pill, Layers, Boxes, PackageCheck, ShoppingCart, Truck,
+  User, Users, HandCoins, Settings, ChevronDown, ChevronRight, ClipboardList,
+  Warehouse, FileBarChart, ShieldCheck, UserCog, ListOrdered, AlertCircle,
+  CalendarDays, Activity, LineChart, Clock, Home, PlusCircle, ScrollText
 } from 'lucide-react'
 
 const navItems = [
@@ -8,6 +12,7 @@ const navItems = [
     label: 'Tableau de Bord',
     href: '/dashboard',
     icon: LayoutDashboard,
+    exact: true
   },
   {
     label: 'Médicaments',
@@ -15,29 +20,47 @@ const navItems = [
     icon: Pill,
     children: [
       {
-        label: 'Formes',
+        label: 'Inventaire Médicaments',
+        href: '/medicines',
+        icon: ListOrdered,
+      },
+      {
+        label: 'Formes Galéniques',
         href: route("forms.index"),
         icon: Layers,
       },
       {
-        label: 'Familles',
+        label: 'Familles Thérapeutiques',
         href: route("families.index"),
         icon: Boxes,
       },
-       {
-        label: 'Liste des Médicaments',
-        href: '/medicines',
-        icon: ListOrdered,
-        },
       {
-        label: 'Stock Médicaments',
-        href: '/medicaments/stock',
-        icon: Warehouse,
+        label: 'Unités d\'Emballage',
+        href: '/units',
+        icon: PackageCheck,
+      },
+    ],
+  },
+  {
+    label: 'Gestion de Stock',
+    href: '#',
+    icon: Warehouse,
+    children: [
+      {
+        label: 'Lots en Stock',
+        href: '/stock/lots',
+        icon: PackageCheck,
       },
       {
-        label: 'Lots Médicaments',
-        href: '/medicaments/lots',
-        icon: PackageCheck,
+        label: 'Inventaire',
+        href: '/stock/inventaire',
+        icon: ClipboardList,
+      },
+      {
+        label: 'Alertes Péremption',
+        href: '/stock/alertes',
+        icon: AlertCircle,
+        alert: true
       },
     ],
   },
@@ -48,161 +71,215 @@ const navItems = [
     children: [
       {
         label: 'Fournisseurs',
-        href: '/approvisionnement/fournisseurs',
+        href: '/suppliers',
         icon: Users,
       },
       {
-        label: 'Achats',
-        href: '/approvisionnement/achats',
-        icon: ClipboardList,
+        label: 'Commandes',
+        href: '/procurements',
+        icon: ScrollText,
+      },
+      {
+        label: 'Nouvelle Commande',
+        href: '/procurements/create',
+        icon: PlusCircle,
+        accent: true
       },
     ],
   },
   {
-    label: 'Gestion des Ventes',
+    label: 'Ventes',
     href: '#',
     icon: ShoppingCart,
     children: [
       {
-        label: 'Clients',
-        href: '/ventes/clients',
+        label: 'Clients/Patients',
+        href: '/customers',
         icon: User,
       },
       {
-        label: 'Ventes',
-        href: '/ventes',
+        label: 'Nouvelle Vente',
+        href: '/sales/create',
+        icon: PlusCircle,
+        accent: true
+      },
+      {
+        label: 'Historique Ventes',
+        href: '/sales',
         icon: HandCoins,
+      },
+      {
+        label: 'Ordonnances',
+        href: '/prescriptions',
+        icon: ScrollText,
       },
     ],
   },
   {
     label: 'Rapports',
-    href: '/rapports',
+    href: '#',
     icon: FileBarChart,
-  },
-  {
-    label: 'Utilisateurs',
-    href: '/utilisateurs',
-    icon: Users,
     children: [
       {
+        label: 'Ventes Journalières',
+        href: '/reports/daily-sales',
+        icon: CalendarDays
+      },
+      {
+        label: 'Médicaments Vendus',
+        href: '/reports/top-medicines',
+        icon: Activity
+      },
+      {
+        label: 'Stock Critique',
+        href: '/reports/stock-alerts',
+        icon: AlertCircle
+      },
+      {
+        label: 'Chiffre d\'Affaires',
+        href: '/reports/revenue',
+        icon: LineChart
+      },
+    ]
+  },
+  {
+    label: 'Administration',
+    href: '#',
+    icon: UserCog,
+    children: [
+      {
+        label: 'Utilisateurs',
+        href: '/users',
+        icon: Users,
+      },
+      {
         label: 'Rôles & Permissions',
-        href: '/utilisateurs/roles',
+        href: '/roles',
         icon: ShieldCheck,
       },
       {
-        label: 'Utilisateurs',
-        href: '/utilisateurs',
-        icon: UserCog,
-      },
+        label: 'Journal d\'Activité',
+        href: '/activity-log',
+        icon: ClipboardList
+      }
     ],
   },
-  {
-    label: 'Paramètres',
-    href: '/settings',
-    icon: Settings,
-  },
 ]
-
 
 type SidebarProps = {
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
 }
+
 export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
   const [openMenus, setOpenMenus] = useState<string[]>([])
   const { url } = usePage()
 
-  const toggleSubMenu = (label: string) => {
-    setOpenMenus((prev) =>
-      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+  const toggleMenu = (label: string) => {
+    setOpenMenus(prev =>
+      prev.includes(label) ? prev.filter(l => l !== label) : [...prev, label]
     )
   }
 
-  const isActive = (href: string) => {
-    return url.startsWith(href)
+  const isActive = (href: string, exact = false) => {
+    return exact ? url === href : url.startsWith(href)
   }
 
-  const mainItems = navItems.filter(item => item.label !== 'Paramètres')
-  const settingsItem = navItems.find(item => item.label === 'Paramètres')
+  // Group items by category
+  const regularItems = navItems.filter(item => !item.bottom)
+  const bottomItem = navItems.find(item => item.bottom)
 
   return (
-    <aside
-      className={`fixed z-30 md:static top-0 left-0 h-screen w-64 bg-green-900 text-white shadow-lg border-r border-green-800 transition-transform duration-300
-      ${sidebarOpen || (typeof window !== 'undefined' && window.innerWidth >= 768) ? 'translate-x-0' : '-translate-x-full'}`}
-    >
+    <aside className={`
+      fixed inset-y-0 left-0 z-30 w-64 bg-green-800 text-white
+      shadow-xl border-r border-green-700 transition-all duration-300
+      transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      md:translate-x-0
+    `}>
       <div className="flex flex-col h-full">
-        {/* Logo & Close */}
-        <div className="flex items-center justify-between px-6 py-4">
-          <img src="/images/logo1.png" alt="Logo Pharmacie" className="h-10 object-contain" />
-          <button className="md:hidden" onClick={() => setSidebarOpen(false)}>
-            <X className="w-6 h-6 text-white" />
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-green-700">
+          <div className="flex items-center space-x-3">
+            <Pill className="h-7 w-7 text-white" />
+            <span className="text-xl font-bold whitespace-nowrap">NicolePharma</span>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-1 rounded-md hover:bg-green-700 transition-colors"
+            aria-label="Fermer le menu"
+          >
+            <X className="h-6 w-6" />
           </button>
         </div>
 
-        {/* Zone scrollable pour le menu principal */}
-        <nav className="flex-1 overflow-y-auto px-2 py-4 gap-1">
-          {mainItems.map(({ label, href, icon: Icon, children }) => {
-            const active = isActive(href)
-            return (
-              <div key={label}>
-                <div
-                  onClick={() => children && toggleSubMenu(label)}
-                  className={`flex items-center justify-between px-3 py-3 rounded-xl cursor-pointer transition-all
-                    ${active ? 'bg-green-800 text-white' : 'hover:bg-green-700 text-gray-200'}`}
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+          {regularItems.map((item) => (
+            <div key={item.label} className="px-2">
+              <div
+                onClick={() => item.children && toggleMenu(item.label)}
+                className={`
+                  flex items-center justify-between px-3 py-3 rounded-lg cursor-pointer
+                  transition-colors duration-200
+                  ${isActive(item.href, item.exact) ? 'bg-green-700' : 'hover:bg-green-700'}
+                `}
+              >
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-3 flex-1 text-base font-semibold"
                 >
-                  <Link
-                    href={href}
-                    className="flex items-center gap-3 flex-1 text-base font-bold"
-                  >
-                    <Icon className="w-6 h-6" />
-                    {label}
-                  </Link>
-                  {children && (
-                    <span>
-                      {openMenus.includes(label) ? (
-                        <ChevronDown className="w-6 h-6" />
-                      ) : (
-                        <ChevronRight className="w-6 h-6" />
-                      )}
-                    </span>
-                  )}
-                </div>
-
-                {children && openMenus.includes(label) && (
-                  <div className="ml-6 mt-1 pl-2 py-1 border-l border-green-100">
-                    {children.map(({ label: subLabel, href: subHref, icon: SubIcon }) => (
-                      <Link
-                        key={subHref}
-                        href={subHref}
-                        className={`flex items-center gap-2 px-2 py-2 rounded-lg text-base transition-all font-semibold
-                          ${isActive(subHref)
-                            ? 'bg-green-700 text-white'
-                            : 'text-gray-300 hover:bg-green-800'}`}
-                      >
-                        <SubIcon className="w-6 h-6" />
-                        {subLabel}
-                      </Link>
-                    ))}
-                  </div>
+                  <item.icon className={`w-5 h-5 ${isActive(item.href, item.exact) ? 'text-white' : 'text-green-200'}`} />
+                  <span>{item.label}</span>
+                </Link>
+                {item.children && (
+                  <ChevronDown className={`
+                    w-5 h-5 transition-transform duration-200
+                    ${openMenus.includes(item.label) ? 'rotate-180' : ''}
+                  `} />
                 )}
               </div>
-            )
-          })}
+
+              {item.children && openMenus.includes(item.label) && (
+                <div className="ml-8 mt-1 pl-2 py-1 border-l-2 border-green-600 space-y-1">
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      className={`
+                        flex items-center gap-2 px-3 py-2 rounded-lg text-sm
+                        transition-colors duration-200 font-medium
+                        ${isActive(child.href)
+                          ? 'bg-green-700 text-white'
+                          : 'text-green-100 hover:bg-green-700/80'}
+                        ${child.accent ? 'text-yellow-300 hover:text-yellow-200' : ''}
+                        ${child.alert ? 'text-red-300 hover:text-red-200' : ''}
+                      `}
+                    >
+                      {child.icon && <child.icon className="w-4 h-4" />}
+                      <span>{child.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </nav>
 
-        {/* Paramètres collé en bas */}
-        {settingsItem && (
-          <div className="sticky bottom-0 px-2 py-2 bg-green-900 border-t border-green-800">
+        {/* Bottom Settings */}
+        {bottomItem && (
+          <div className="p-4 border-t border-green-700">
             <Link
-              href={settingsItem.href}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-base font-bold transition-all
-                ${isActive(settingsItem.href)
-                  ? 'bg-green-800 text-white'
-                  : 'hover:bg-green-700 text-gray-200'}`}
+              href={bottomItem.href}
+              className={`
+                flex items-center gap-3 px-3 py-2 rounded-lg
+                transition-colors duration-200 font-semibold
+                ${isActive(bottomItem.href)
+                  ? 'bg-green-700 text-white'
+                  : 'hover:bg-green-700 text-green-100'}
+              `}
             >
-              <settingsItem.icon className="w-8 h-8" />
-              {settingsItem.label}
+              <bottomItem.icon className="w-5 h-5" />
+              <span>{bottomItem.label}</span>
             </Link>
           </div>
         )}
@@ -210,6 +287,3 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
     </aside>
   )
 }
-
-
-

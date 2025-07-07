@@ -29,7 +29,6 @@ class MedicineController extends Controller
                   ->orWhere('families.name', 'like', "%{$search}%");
             });
         }
-
         // Tri
         $sort = $request->sort ?? ['field' => 'medicines.code', 'direction' => 'asc'];
         $query->orderBy($sort['field'], $sort['direction']);
@@ -86,7 +85,7 @@ class MedicineController extends Controller
     {
         return Inertia::render('Medicines/ShowMedicinePage', [
             'medicine' => $medicine->load('family'),
-            'audits' => $medicine->audits()->with('user')->latest()->get(),
+            // 'audits' => $medicine->audits()->with('user')->latest()->get(),
         ]);
     }
 

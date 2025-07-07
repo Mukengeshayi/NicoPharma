@@ -4,6 +4,7 @@ use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UnitController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -30,6 +31,11 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/medicines', MedicineController::class)->except(['create','edit']);
     Route::post('medicines/mass-destroy', [MedicineController::class, 'massDestroy'])->name('medicines.mass-destroy');
+
+    Route::resource('/units', UnitController::class)->except(['create','edit'])->except(['create','edit']);
+    Route::post('units/mass-destroy', [UnitController::class, 'massDestroy'])->name('units.mass-destroy');
+
+
 
 
 

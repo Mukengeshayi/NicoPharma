@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('units', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('abbreviation')->nullable(); 
+            $table->string('abbreviation')->nullable();
             $table->enum('type', ['primary', 'measure', 'container']);
             $table->text('description')->nullable();
             $table->timestamps();
@@ -26,6 +26,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('units');
+        Schema::table('units', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
     }
 };

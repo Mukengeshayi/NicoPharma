@@ -31,6 +31,7 @@ class FamilyController extends Controller
             'families' => $families,
             'filters' => $request->only(['search', 'sort', 'perPage'])
         ]);
+
     }
 
     /**

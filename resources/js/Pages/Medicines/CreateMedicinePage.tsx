@@ -73,7 +73,8 @@ const CreateMedicinePage: React.FC<CreateMedicineProps> = ({ open, onClose, fami
                             className="focus:ring-green-600 text-sm md:text-base"
                             value={data.indications}
                             onChange={(e) => setData("indications", e.target.value)}
-                            error={errors.indications}
+                            error={errors['indications']}
+
                         />
                     </div>
                     <div className="flex justify-end space-x-2 pt-4">
