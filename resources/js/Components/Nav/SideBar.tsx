@@ -4,7 +4,8 @@ import {
   X, LayoutDashboard, Pill, Layers, Boxes, PackageCheck, ShoppingCart, Truck,
   User, Users, HandCoins, Settings, ChevronDown, ChevronRight, ClipboardList,
   Warehouse, FileBarChart, ShieldCheck, UserCog, ListOrdered, AlertCircle,
-  CalendarDays, Activity, LineChart, Clock, Home, PlusCircle, ScrollText
+  CalendarDays, Activity, LineChart, Clock, Home, PlusCircle, ScrollText,
+  Package
 } from 'lucide-react'
 
 const navItems = [
@@ -20,11 +21,6 @@ const navItems = [
     icon: Pill,
     children: [
       {
-        label: 'Inventaire Médicaments',
-        href: '/medicines',
-        icon: ListOrdered,
-      },
-      {
         label: 'Formes Galéniques',
         href: route("forms.index"),
         icon: Layers,
@@ -39,6 +35,16 @@ const navItems = [
         href: '/units',
         icon: PackageCheck,
       },
+      {
+        label: 'Liste Médicaments',
+        href: '/medicines',
+        icon: ListOrdered,
+      },
+      {
+        label: 'Conditionnement',
+        href: '/medicines',
+        icon: Package,
+      },
     ],
   },
   {
@@ -47,7 +53,7 @@ const navItems = [
     icon: Warehouse,
     children: [
       {
-        label: 'Lots en Stock',
+        label: 'Gestion des lots',
         href: '/stock/lots',
         icon: PackageCheck,
       },
@@ -116,7 +122,7 @@ const navItems = [
     ],
   },
   {
-    label: 'Rapports',
+    label: 'Rap2ports',
     href: '#',
     icon: FileBarChart,
     children: [

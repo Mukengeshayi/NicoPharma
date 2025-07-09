@@ -160,7 +160,7 @@ export default function MedicinePage({ medicines, families, filters }: MedecineP
                                 {
                                     icon: <Box className="h-4 w-4" />,
                                     tooltip: 'Gerer le conditionnement',
-                                    onClick: (item) => router.visit(route('medicines.edit', item.id)),
+                                    onClick: (item) => router.visit(route('medicines.packaging.create-bulk', item.id)),
                                     color: 'green',
                                 },
                             ],

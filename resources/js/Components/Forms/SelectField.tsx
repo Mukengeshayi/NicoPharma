@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { ChevronDown, Search, Loader2, Check } from 'lucide-react';
 
 type SelectFieldProps = {
-  label: string;
+  label?: string;
   name: string;
   value: string | number;
   options: Array<{ value: string | number; label: string }>;

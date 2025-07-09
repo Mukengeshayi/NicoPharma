@@ -22,12 +22,6 @@ class Medicine extends Model
     }
     public function forms()
     {
-        return $this->belongsToMany(Form::class, 'medicine_forms')
-                    ->withPivot([
-                        'packaging_unit_id',
-                        'content_unit_id',
-                        'content_quantity',
-                        'price'
-                    ]);
+        return $this->hasMany(MedicineForm::class);
     }
 }

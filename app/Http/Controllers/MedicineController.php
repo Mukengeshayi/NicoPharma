@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Family;
+use App\Models\Form;
 use App\Models\Medicine;
+use App\Models\Unit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -83,10 +85,15 @@ class MedicineController extends Controller
      */
     public function show(Medicine $medicine)
     {
+
         return Inertia::render('Medicines/ShowMedicinePage', [
-            'medicine' => $medicine->load('family'),
-            // 'audits' => $medicine->audits()->with('user')->latest()->get(),
-        ]);
+            'medicine' => $medicine->load([
+                'family',
+                'forms.form',
+                'forms.packagingUnit',
+                'forms.contentUnit'
+            ]),
+         ]);
     }
 
     /**
@@ -172,4 +179,38 @@ class MedicineController extends Controller
         // 4. Format final (ex: PAR001, PAR002, etc.)
         return $prefix . str_pad($number, 3, '0', STR_PAD_LEFT);
     }
+
+    public function createBulk(Medicine $medicine)
+    {
+        return Inertia::render('Medicines/PackagingPage', [
+            'medicine' => $medicine,
+            'forms' => Form::all(),
+            'packagingUnits' => Unit::containerUnits()->get(),
+            'contentUnits' => Unit::measureUnits()->get(),
+        ]);
+    }
+    public function storeBulk(Request $request, Medicine $medicine)
+    {
+        $validated = $request->validate([
+            'forms' => 'required|array|min:1',
+            'forms.*.form_id' => 'required|exists:forms,id',
+            'forms.*.packaging_unit_id' => 'required|exists:units,id',
+            'forms.*.content_unit_id' => 'required|exists:units,id',
+            'forms.*.content_quantity' => 'required|numeric|min:0.01',
+            'forms.*.price' => 'required|numeric|min:0.01',
+        ]);
+
+        foreach ($validated['forms'] as $formData) {
+            $medicine->forms()->create([
+                'form_id' => $formData['form_id'],
+                'packaging_unit_id' => $formData['packaging_unit_id'],
+                'content_unit_id' => $formData['content_unit_id'],
+                'content_quantity' => $formData['content_quantity'],
+                'price' => $formData['price'],
+            ]);
+        }
+        return redirect()->route('medicines.show', $medicine)->with('success', 'Conditionnements enregistrés avec succès');
+
+    }
+
 }

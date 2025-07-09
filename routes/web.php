@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/medicines', MedicineController::class)->except(['create','edit']);
     Route::post('medicines/mass-destroy', [MedicineController::class, 'massDestroy'])->name('medicines.mass-destroy');
+    Route::get('medicines/{medicine}/packaging/create-bulk', [MedicineController::class, 'createBulk'])->name('medicines.packaging.create-bulk');
+    Route::post('medicines/{medicine}/packaging/store-bulk', [MedicineController::class, 'storeBulk'])->name('medicines.packaging.store-bulk');
 
     Route::resource('/units', UnitController::class)->except(['create','edit'])->except(['create','edit']);
     Route::post('units/mass-destroy', [UnitController::class, 'massDestroy'])->name('units.mass-destroy');

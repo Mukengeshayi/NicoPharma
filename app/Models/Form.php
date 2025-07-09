@@ -13,9 +13,7 @@ class Form extends Model
 
     public function medicines()
     {
-        return $this->belongsToMany(Medicine::class, 'medicine_forms')
-                    ->withPivot('packaging_unit_id', 'content_unit_id', 'content_quantity', 'price')
-                    ->withTimestamps();
+        return $this->hasMany(MedicineForm::class);
     }
 }
 
