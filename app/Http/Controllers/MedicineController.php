@@ -182,9 +182,9 @@ class MedicineController extends Controller
 
     public function createBulk(Medicine $medicine)
     {
-        return Inertia::render('Medicines/PackagingPage', [
+        return Inertia::render('Medicines/CreateBulkPage', [
             'medicine' => $medicine,
-            'forms' => Form::all(),
+            'forms' => Form::orderBy('name')->get(['id', 'name']),
             'packagingUnits' => Unit::containerUnits()->get(),
             'contentUnits' => Unit::measureUnits()->get(),
         ]);

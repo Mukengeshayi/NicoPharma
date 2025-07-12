@@ -16,7 +16,7 @@ interface Unit {
   abbreviation: string;
 }
 
-export default function PackagingPage() {
+export default function CreateBulkPage() {
     const { medicine, forms, packagingUnits, contentUnits } = usePage<{
         medicine: any;
         forms: Form[];

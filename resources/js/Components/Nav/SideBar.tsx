@@ -42,7 +42,7 @@ const navItems = [
       },
       {
         label: 'Conditionnement',
-        href: '/medicines',
+        href: '/packagings',
         icon: Package,
       },
     ],
@@ -122,7 +122,7 @@ const navItems = [
     ],
   },
   {
-    label: 'Rap2ports',
+    label: 'Rapports',
     href: '#',
     icon: FileBarChart,
     children: [
