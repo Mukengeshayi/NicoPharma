@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FamilyController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\MedicineController;
 use App\Http\Controllers\MedicineFormController;
 use App\Http\Controllers\ProfileController;
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('/suppliers', SupplierController::class);
 
+    Route::resource('/locations', LocationController::class);
 
     Route::resource('/packagings', MedicineFormController::class);
 

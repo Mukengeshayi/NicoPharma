@@ -2,7 +2,7 @@
 import CustomBreadcrumb from "@/Components/Utils/CustomBreadcrumb";
 import Authenticated from "@/Layouts/AuthenticatedLayout";
 import { Head, router } from "@inertiajs/react";
-import { Eye, FileUp, Home, Plus, Save, Trash, Trash2 } from "lucide-react";
+import { Home, Plus} from "lucide-react";
 import React, { useState } from "react";
 import AppButton from "@/Components/buttons/AppButton";
 import CreateFormPage from "./CreateFormPage";

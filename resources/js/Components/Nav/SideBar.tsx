@@ -159,6 +159,11 @@ const navItems = [
         icon: Users,
       },
       {
+        label: 'Emplacements',
+        href: '/locations',
+        icon: Users,
+      },
+      {
         label: 'Rôles & Permissions',
         href: '/roles',
         icon: ShieldCheck,
